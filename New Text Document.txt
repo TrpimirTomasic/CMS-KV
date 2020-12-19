@@ -22,3 +22,16 @@ https://www.gymventures.com/gym-equipment-names-and-pictures/
 osobni treneri
 
 https://www.mypersonaltrainerwebsite.com/blog/the-20-best-personal-trainer-website-designs
+
+
+To Do:
+
+    - Dodati programe
+    - Dodati tipove trenera
+    - Prepraviti grupe mišića
+    - Promjeniti slike nekih trenera (uzet manje)
+    
+    - Izgled početne stranice
+    - Izgled archive-program.php & single-program.php
+    - Izgled single-trener.php
+    - Izgled archive-sprava.php & single-sprava.php
