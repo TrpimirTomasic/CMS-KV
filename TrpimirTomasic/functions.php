@@ -436,3 +436,310 @@ function daj_sprave( $slug )
     $sHtml .= "</ul>";
     return $sHtml;
 }
+
+
+
+
+// ------------------------------ >>
+// ------------------------------------ >>
+
+// POVEZIVANJA
+
+// ------------------------------------ >>
+// ------------------------------ >>
+
+function add_meta_box_povezivanja()
+{
+	// Treneri -> Programi
+	add_meta_box( 'trener_program', 'Trener', 'html_meta_box_program', 'trener');
+	// Programi -> Sprave
+	add_meta_box( 'program_sprava', 'Program', 'html_meta_box_sprava', 'program');
+}
+
+add_action( 'add_meta_boxes', 'add_meta_box_povezivanja' );
+
+// 1
+
+function html_meta_box_program($post)
+{
+    wp_nonce_field('spremi_program', 'program_trenera_nonce');
+    $popisprograma = get_post_meta($post->ID, 'program_trenera', true);
+    echo '
+    <div>
+    <div>
+    <label for="program_trenera">Program: </label>
+    <select id="program_trenera" name="program_trenera[]" multiple>
+            '.
+            $args = array(
+            'posts_per_page' => -1,
+            'post_type' => 'program',
+            'post_status' => 'publish'
+            );
+            $programi = get_posts( $args );
+            $sHtml = "";
+
+            foreach ($programi as $program)
+                {
+                    $sprogramNaziv = $program->post_title;
+                    $programiArray = explode(', ', $popisprograma);
+                    $selected = "";
+                    foreach ($programiArray as $oprogram) 
+                    {
+                        
+                        if ($oprogram == $sprogramNaziv)
+                        {
+                            $selected = "selected";
+                        }
+                    }
+
+                    
+                    $sHtml .= '<option value="'.$sprogramNaziv.'" '. $selected .'>'.$sprogramNaziv.'</option>';
+                }
+            echo $sHtml
+            .'
+    </select>
+    </div>
+    <br/>
+    </div>';
+}
+
+function spremi_program($post_id)
+{
+    $is_autosave = wp_is_post_autosave( $post_id );
+    $is_revision = wp_is_post_revision( $post_id );
+    $is_valid_nonce_jelo_menija = ( isset( $_POST[ 'program_trenera_nonce' ] ) &&
+        wp_verify_nonce($_POST[ 'program_trenera_nonce' ], basename( __FILE__ ) ) ) ? 'true' : 'false';
+
+    if ( $is_autosave || $is_revision || !$is_valid_nonce_jelo_menija)
+    {
+        return;
+    }
+    if(!empty($_POST['program_trenera']))
+    {
+        if (is_array($_POST[ 'program_trenera' ]))
+        {
+            $programi = implode(", ", $_POST[ 'program_trenera' ]);
+        }
+        else
+        {
+            $programi = $_POST[ 'program_trenera' ];
+        }
+        update_post_meta($post_id, 'program_trenera',
+        $programi);
+    }
+    else
+    {
+        delete_post_meta($post_id, 'program_trenera');
+    }
+}
+
+add_action( 'save_post', 'spremi_program' );
+
+
+// 2
+
+function html_meta_box_sprava($post)
+{
+    wp_nonce_field('spremi_spravu', 'sprava_programa_nonce');
+    $popissprava = get_post_meta($post->ID, 'sprava_programa', true);
+    echo '
+    <div>
+    <div>
+    <label for="sprava_programa">Sprava: </label>
+    <select id="sprava_programa" name="sprava_programa[]" multiple>
+            '.
+            $args = array(
+            'posts_per_page' => -1,
+            'post_type' => 'sprava',
+            'post_status' => 'publish'
+            );
+            $sprave = get_posts( $args );
+            $sHtml = "";
+
+            foreach ($sprave as $sprava)
+                {
+                    $sspravaNaziv = $sprava->post_title;
+                    $spraveArray = explode(', ', $popissprava);
+                    $selected = "";
+                    foreach ($spraveArray as $osprava) 
+                    {
+                        
+                        if ($osprava == $sspravaNaziv)
+                        {
+                            $selected = "selected";
+                        }
+                    }
+
+                    
+                    $sHtml .= '<option value="'.$sspravaNaziv.'" '. $selected .'>'.$sspravaNaziv.'</option>';
+                }
+            echo $sHtml
+            .'
+    </select>
+    </div>
+    <br/>
+    </div>';
+}
+
+function spremi_spravu($post_id)
+{
+    $is_autosave = wp_is_post_autosave( $post_id );
+    $is_revision = wp_is_post_revision( $post_id );
+    $is_valid_nonce_jelo_menija = ( isset( $_POST[ 'sprava_programa_nonce' ] ) &&
+        wp_verify_nonce($_POST[ 'sprava_programa_nonce' ], basename( __FILE__ ) ) ) ? 'true' : 'false';
+
+    if ( $is_autosave || $is_revision || !$is_valid_nonce_jelo_menija)
+    {
+        return;
+    }
+    if(!empty($_POST['sprava_programa']))
+    {
+        if (is_array($_POST[ 'sprava_programa' ]))
+        {
+            $sprave = implode(", ", $_POST[ 'sprava_programa' ]);
+        }
+        else
+        {
+            $sprave = $_POST[ 'sprava_programa' ];
+        }
+        update_post_meta($post_id, 'sprava_programa',
+        $sprave);
+    }
+    else
+    {
+        delete_post_meta($post_id, 'sprava_programa');
+    }
+}
+
+add_action( 'save_post', 'spremi_spravu' );
+
+
+
+// Dohvacanje svih trenera nekog prorama
+function daj_trenera_programa( $slug )
+{
+	$ProgramTitle;
+	// dohvacanje svih trenera
+    $argsT = array(
+		'posts_per_page' => -1,
+		'post_type' => 'trener',
+		'post_status' => 'publish',
+		'tax_query' => array());
+	$treneri = get_posts( $argsT );
+
+	// dohvacanje svih programa
+	$argsP = array(
+		'posts_per_page' => -1,
+		'post_type' => 'program',
+		'post_status' => 'publish'
+	);
+	$programi = get_posts( $argsP );
+
+	foreach ($programi as $program)
+	{
+		$nProgramId = $program->ID;
+		if($nProgramId == $slug) {
+			$ProgramTitle = $program->post_title;
+		}
+		
+	}
+	$sHtml = '<div class="trener_tog_programa">';
+	// prolazimo kroz svakog trenera
+	
+    foreach ($treneri as $trener)
+    {
+		$nTrenerId = $trener->ID;
+		$TrenerTitle = $trener->post_title;
+		$popisPrograma = get_post_meta($nTrenerId, 'program_trenera', true);
+		$programiArray = explode(', ', $popisPrograma);
+		foreach ($programiArray as $oProgram) 
+		{
+			if($oProgram == $ProgramTitle) 
+			{
+				$nTrenerId = $trener->ID;
+				$sTrenerUrl = $trener->guid;
+				$sTrenerNaziv = $trener->post_title;
+				$sTrenerImg = get_the_post_thumbnail_url($nTrenerId);
+		
+				$sHtml .= '
+				<a href="'.$sTrenerUrl.'">
+					<div class="card">
+						<img class="card-img-top" src="'.$sTrenerImg.'" alt="Card image cap">
+						<div class="card-body">
+							<h5 class="card-title">'.$sTrenerNaziv.'</h5>
+							
+						</div>
+					</div>
+				</a>';
+
+			}
+		}
+	}
+	$sHtml .= '</div>';
+	return $sHtml;
+}
+
+
+
+// Dohvacanje svih sprava nekog prorama
+function daj_sprave_programa( $slug )
+{
+	$SpravaTitle;
+	// dohvacanje svih sprava
+    $argsT = array(
+		'posts_per_page' => -1,
+		'post_type' => 'sprava',
+		'post_status' => 'publish',
+		'tax_query' => array());
+	$sprave = get_posts( $argsT );
+
+	// dohvacanje svih programa
+	$argsP = array(
+		'posts_per_page' => -1,
+		'post_type' => 'program',
+		'post_status' => 'publish'
+	);
+	$programi = get_posts( $argsP );
+
+	foreach ($sprave as $sprava)
+	{
+		$nSpravaId = $sprava->ID;
+		if($nSpravaId == $slug) {
+			$SpravaTitle = $sprava->post_title;
+		}
+	}
+	$sHtml = '<div class="trener_tog_programa">';
+	// prolazimo kroz svakou spravu
+	
+    foreach ($programi as $program)
+    {
+		$nProgramId = $program->ID;
+
+		$popisSprava = get_post_meta($nProgramId, 'sprava_programa', true);
+		$spraveArray = explode(', ', $popisSprava);
+		
+		foreach ($spraveArray as $oProgram) 
+		{
+			if($oProgram == $SpravaTitle) 
+			{
+				$sTrenerUrl = $program->guid;
+				$sTrenerNaziv = $program->post_title;
+				$sTrenerImg = get_the_post_thumbnail_url($nProgramId);
+		
+				$sHtml .= '
+				<a href="'.$sTrenerUrl.'">
+					<div class="card">
+						<img class="card-img-top" src="'.$sTrenerImg.'" alt="Card image cap">
+						<div class="card-body">
+							<h5 class="card-title">'.$sTrenerNaziv.'</h5>
+							
+						</div>
+					</div>
+				</a>';
+
+			}
+		}
+	}
+	$sHtml .= '</div>';
+	return $sHtml;
+}

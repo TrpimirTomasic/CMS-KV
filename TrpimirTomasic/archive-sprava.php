@@ -22,12 +22,16 @@ echo '<header class="masthead" style="background-image: url('.$sImageUrl.')">
 <?php
 echo '<div class="container-fluid text-center">
 		<div class="trener-item">
-			    <h2>Adductors</h2>';
-				echo daj_sprave( 'adductors' );
-				echo '<h2>Bedreni mišići</h2>';
-				echo daj_sprave( 'bedreni-misici' );
-				echo '<h2>Biceps femoris</h2>';
-				echo daj_sprave( 'biceps-femoris' );
+    <h2>Mišići trbuha</h2>';
+    echo daj_sprave( 'misici-trbuha' );
+    echo '<h2>Mišići nogu</h2>';
+    echo daj_sprave( 'misici-nogu' );
+    echo '<h2>Mišići ruku</h2>';
+    echo daj_sprave( 'misici-ruku' );
+    echo '<h2>Mišići prsa</h2>';
+    echo daj_sprave( 'misici-prsa' );
+    echo '<h2>Mišići leda</h2>';
+    echo daj_sprave( 'misici-leda' );
 echo '</div></div>';
 ?>
 
